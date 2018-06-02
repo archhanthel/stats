@@ -1,6 +1,5 @@
 package org.kandikov.stats;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class TransactionControllerTest {
 	private MockMvc mockMvc;
 
 	@Test
-	public void postTransactions_WhenValidTransaction_Returns201WithEmptyBody() throws Exception {
+	public void postTransactions_whenValidTransaction_returns201WithEmptyBody() throws Exception {
 		String transaction = "{\"amount\": 12.3, \"timestamp\": 1478192204000}";
 
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
@@ -33,5 +32,17 @@ public class TransactionControllerTest {
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(content().string(""))
 				.andExpect(status().is(201));
+	}
+
+	@Test
+	public void postTransaction_whenTransactionIsOlderThan60seconds_returns204WithEmptyBody() throws Exception {
+		String transaction = "{\"amount\": 12.3, \"timestamp\": 1478192204000}";
+
+		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+				.content(transaction)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(content().string(""))
+				.andExpect(status().is(204));
 	}
 }
