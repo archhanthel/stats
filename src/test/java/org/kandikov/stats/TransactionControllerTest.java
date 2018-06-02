@@ -51,4 +51,19 @@ public class TransactionControllerTest {
 				.andExpect(content().string(""))
 				.andExpect(status().is(204));
 	}
+
+	@Test
+	public void getStatistics_returnsValidStatistics() throws Exception {
+		String statistics = "{\n" +
+				"\"sum\": 1000,\n" +
+				"\"avg\": 100,\n" +
+				"\"max\": 200,\n" +
+				"\"min\": 50,\n" +
+				"\"count\": 10\n" +
+				"}";
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/statistics"))
+				.andExpect(status().is(200))
+				.andExpect(content().string(statistics));
+	}
 }
