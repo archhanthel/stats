@@ -1,5 +1,7 @@
 package org.kandikov.stats;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.joda.time.DateTimeZone.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,8 +27,10 @@ public class TransactionControllerTest {
 
 	@Test
 	public void postTransactions_whenValidTransaction_returns201WithEmptyBody() throws Exception {
-		String transaction = "{\"amount\": 12.3, \"timestamp\": 1478192204000}";
 
+		DateTime dateTime = new DateTime(UTC);
+
+		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.getMillis()+"}";
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 				.content(transaction)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -36,7 +41,9 @@ public class TransactionControllerTest {
 
 	@Test
 	public void postTransaction_whenTransactionIsOlderThan60seconds_returns204WithEmptyBody() throws Exception {
-		String transaction = "{\"amount\": 12.3, \"timestamp\": 1478192204000}";
+		DateTime dateTime = new DateTime(UTC);
+
+		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.minusMinutes(1).getMillis() + "}";
 
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 				.content(transaction)
