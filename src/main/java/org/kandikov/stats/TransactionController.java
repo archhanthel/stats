@@ -8,15 +8,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
 public class TransactionController {
 
 	@RequestMapping(value = "/transactions", method = POST, consumes = "application/json", produces = "application/json")
-	Object transactions(@Valid @RequestBody Transaction transaction) {
+	Object transactions( @RequestBody Transaction transaction) {
 		DateTime dateTime = new DateTime(DateTimeZone.UTC);
 
 		if (transaction.getTimestamp() < dateTime.minusMinutes(1).getMillis())
