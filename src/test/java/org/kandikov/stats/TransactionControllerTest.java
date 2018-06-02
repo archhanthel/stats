@@ -29,8 +29,8 @@ public class TransactionControllerTest {
 
 		DateTime dateTime = new DateTime(UTC);
 
-		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.getMillis()+"}";
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.getMillis() + "}";
+		mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 				.content(transaction)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
@@ -44,7 +44,7 @@ public class TransactionControllerTest {
 
 		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.minusMinutes(1).getMillis() + "}";
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+		mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 				.content(transaction)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
@@ -58,7 +58,7 @@ public class TransactionControllerTest {
 
 		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.plusMinutes(1).getMillis() + "}";
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+		mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 				.content(transaction)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
@@ -67,18 +67,21 @@ public class TransactionControllerTest {
 	}
 
 	@Test
-	public void getStatistics_returnsValidStatistics() throws Exception {
-		String statistics = "{\n" +
-				"\"sum\": 1000,\n" +
-				"\"avg\": 100,\n" +
-				"\"max\": 200,\n" +
-				"\"min\": 50,\n" +
-				"\"count\": 10\n" +
-				"}";
+	public void getStatistics_whenAtLeastOneTransactionExists_returnsStatistics() throws Exception {
+		DateTime dateTime = new DateTime(UTC);
+		String transaction = "{\"amount\": 42.0, \"timestamp\": " + dateTime.getMillis() + "}";
 
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/statistics"))
+		mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+				.content(transaction)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(content().string(""))
+				.andExpect(status().is(201));
+
+		String expected = "{\"sum\":42.0,\"avg\":42.0,\"max\":42.0,\"min\":42.0,\"count\":1}";
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/statistics"))
 				.andExpect(status().is(200))
-				.andExpect(content().string(statistics));
+				.andExpect(content().string(expected));
 	}
-
 }
