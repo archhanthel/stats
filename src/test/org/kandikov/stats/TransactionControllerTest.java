@@ -25,23 +25,13 @@ public class TransactionControllerTest {
 
 	@Test
 	public void postTransactions_WhenValidTransaction_Returns201WithEmptyBody() throws Exception {
-		String transaction = "{\"ammount\": 12.3, \"timestamp\": 1478192204000}";
+		String transaction = "{\"amount\": 12.3, \"timestamp\": 1478192204000}";
 
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
-				.content(asJsonString(transaction))
+				.content(transaction)
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(content().string(""))
 				.andExpect(status().is(201));
-	}
-
-	public static String asJsonString(final Object obj) {
-		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			final String jsonContent = mapper.writeValueAsString(obj);
-			return jsonContent;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 }
