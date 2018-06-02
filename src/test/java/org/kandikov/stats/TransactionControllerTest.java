@@ -53,6 +53,20 @@ public class TransactionControllerTest {
 	}
 
 	@Test
+	public void postTransaction_whenTransactionInTheFuture_returns204WithEmptyBody() throws Exception {
+		DateTime dateTime = new DateTime(UTC);
+
+		String transaction = "{\"amount\": 12.3, \"timestamp\": " + dateTime.plusMinutes(1).getMillis() + "}";
+
+		this.mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
+				.content(transaction)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(content().string(""))
+				.andExpect(status().is(204));
+	}
+
+	@Test
 	public void getStatistics_returnsValidStatistics() throws Exception {
 		String statistics = "{\n" +
 				"\"sum\": 1000,\n" +
@@ -66,4 +80,5 @@ public class TransactionControllerTest {
 				.andExpect(status().is(200))
 				.andExpect(content().string(statistics));
 	}
+
 }

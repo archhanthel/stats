@@ -15,16 +15,16 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class TransactionController {
 
 	@RequestMapping(value = "/transactions", method = POST, consumes = "application/json", produces = "application/json")
-	Object transactions( @RequestBody Transaction transaction) {
+	Object transactions(@RequestBody Transaction transaction) {
 		DateTime dateTime = new DateTime(DateTimeZone.UTC);
 
-		if (transaction.getTimestamp() < dateTime.minusMinutes(1).getMillis())
+		if (transaction.getTimestamp() < dateTime.minusMinutes(1).getMillis() || transaction.getTimestamp() > dateTime.getMillis())
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/statistics", method = GET, produces = "application/json")
-	Object statistics(){
+	Object statistics() {
 		return "{\n" +
 				"\"sum\": 1000,\n" +
 				"\"avg\": 100,\n" +
