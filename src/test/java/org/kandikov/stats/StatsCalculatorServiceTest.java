@@ -170,7 +170,6 @@ public class StatsCalculatorServiceTest {
 		service.update(second);
 
 		assertThat(service.getStatistics().getAvg()).isEqualTo(42.42);
-
 	}
 
 

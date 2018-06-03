@@ -1,7 +1,6 @@
 package org.kandikov.stats;
 
 import org.joda.time.DateTime;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,26 +8,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class StatsCalculatorService {
-	private Transaction[] transactions = new Transaction[60];
-	private TransactionStatistics[] lastMinuteStats = new TransactionStatistics[60];
-	private final Integer capacity = 60;
-	private ConcurrentHashMap<Integer, TransactionStatistics> concurrentStats = new ConcurrentHashMap<>(capacity);
+	private static final Integer CAPACITY = 60;
+	private ConcurrentHashMap<Integer, TransactionStatistics> frames = new ConcurrentHashMap<>(CAPACITY);
 
 	StatsCalculatorService() {
-		for (int i = 0; i < capacity; i++) {
-			concurrentStats.put(i, new TransactionStatistics());
+		for (int i = 0; i < CAPACITY; i++) {
+			frames.put(i, new TransactionStatistics());
 		}
 	}
 
 	public TransactionStatistics getStatistics() {
 		TransactionStatistics stats = new TransactionStatistics();
 
-		for (int i = 0; i < capacity; i++) {
-			TransactionStatistics stat = concurrentStats.get(i);
-
+		for (int i = 0; i < CAPACITY; i++) {
+			TransactionStatistics stat = frames.get(i);
 			long minuteAgo = new DateTime().minusSeconds(60).getMillis();
-
 			long lastUpdated = stat.getLastUpdated();
+
 			if (lastUpdated > minuteAgo) {
 				stats.setSum(stats.getSum() + stat.getSum());
 				if (stats.getMin() > stat.getMin() || stats.getMin() == 0)
@@ -42,19 +38,24 @@ public class StatsCalculatorService {
 		return stats;
 	}
 
-	@Async
 	public void update(Transaction transaction) {
-		int secondOfMinute = new DateTime(transaction.getTimestamp()).getSecondOfMinute();
-		System.out.println(transaction.getTimestamp());
-		System.out.println(new DateTime().minusSeconds(60).getMillis());
-		if (concurrentStats.get(secondOfMinute).getLastUpdated() > new DateTime().minusSeconds(60).getMillis())
-			concurrentStats.put(secondOfMinute, calculateStats(transaction, concurrentStats.get(secondOfMinute)));
-		else
-			concurrentStats.put(secondOfMinute, calculateStats(transaction, new TransactionStatistics()));
+		int index = new DateTime(transaction.getTimestamp()).getSecondOfMinute();
+
+		frames.computeIfPresent(index, (key, frame) -> {
+			if (isValid(frame)) {
+				return updateFrame(transaction, frame);
+			} else {
+				return updateFrame(transaction, new TransactionStatistics());
+			}
+		});
 
 	}
 
-	private TransactionStatistics calculateStats(Transaction transaction, TransactionStatistics stats) {
+	private boolean isValid(TransactionStatistics transactionStatistics) {
+		return transactionStatistics.getLastUpdated() > new DateTime().minusSeconds(60).getMillis();
+	}
+
+	private TransactionStatistics updateFrame(Transaction transaction, TransactionStatistics stats) {
 		double amount = transaction.getAmount();
 		stats.setSum(stats.getSum() + amount);
 
@@ -67,6 +68,7 @@ public class StatsCalculatorService {
 		long count = stats.getCount();
 		stats.setCount(++count);
 		stats.setLastUpdated(transaction.getTimestamp());
+
 		return stats;
 	}
 }
