@@ -1,10 +1,15 @@
 package org.kandikov.stats;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
+import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.*;
+import static org.joda.time.DateTimeZone.UTC;
 
 public class StatsCalculatorServiceTest {
+
+	private final DateTime dateTime = new DateTime(UTC);
 
 	@Test
 	public void getStatistics_whenNoTransactionsExist_returnsDefaultValues() {
@@ -22,18 +27,27 @@ public class StatsCalculatorServiceTest {
 	@Test
 	public void getStatistics_whenTransactionsExist_returnsNumberOfTransActions() {
 		StatsCalculatorService service = new StatsCalculatorService();
+		Transaction transaction = new Transaction();
+		transaction.setTimestamp(dateTime.getMillis());
+		transaction.setAmount(42.00);
 
-		service.update(new Transaction());
+		service.update(transaction);
 
 		assertThat(service.getStatistics().getCount()).isEqualTo(1L);
 	}
 
 	@Test
-	public void getStatistics_whenMoreThanOneTransaction_returnsSummOfTransactions() {
+	public void getStatistics_whenMoreThanOneTransaction_returnsSumOfTransactions() {
 		StatsCalculatorService service = new StatsCalculatorService();
+		Transaction first = new Transaction();
+		first.setAmount(22.20);
+		first.setTimestamp(dateTime.getMillis());
+		Transaction second = new Transaction();
+		second.setAmount(20.22);
+		second.setTimestamp(dateTime.getMillis());
 
-		service.update(new Transaction());
-		service.update(new Transaction());
+		service.update(first);
+		service.update(second);
 
 		assertThat(service.getStatistics().getCount()).isEqualTo(2L);
 	}
@@ -43,13 +57,15 @@ public class StatsCalculatorServiceTest {
 		StatsCalculatorService service = new StatsCalculatorService();
 
 		Transaction lower = new Transaction();
-		Transaction mid = new Transaction();
-		Transaction higher = new Transaction();
-
-
 		lower.setAmount(21.10);
-		higher.setAmount(42.42);
+		lower.setTimestamp(dateTime.getMillis());
+		Transaction mid = new Transaction();
+		mid.setTimestamp(dateTime.getMillis());
 		mid.setAmount(33.05);
+		Transaction higher = new Transaction();
+		higher.setTimestamp(dateTime.getMillis());
+		higher.setAmount(42.42);
+
 
 		service.update(higher);
 		service.update(lower);
@@ -63,13 +79,15 @@ public class StatsCalculatorServiceTest {
 		StatsCalculatorService service = new StatsCalculatorService();
 
 		Transaction lower = new Transaction();
-		Transaction mid = new Transaction();
-		Transaction higher = new Transaction();
-
-
 		lower.setAmount(21.10);
-		higher.setAmount(42.42);
+		lower.setTimestamp(dateTime.getMillis());
+		Transaction mid = new Transaction();
 		mid.setAmount(33.05);
+		mid.setTimestamp(dateTime.getMillis());
+		Transaction higher = new Transaction();
+		higher.setAmount(42.42);
+		higher.setTimestamp(dateTime.getMillis());
+
 
 		service.update(higher);
 		service.update(lower);
@@ -83,10 +101,11 @@ public class StatsCalculatorServiceTest {
 		StatsCalculatorService service = new StatsCalculatorService();
 
 		Transaction first = new Transaction();
-		Transaction second = new Transaction();
-
 		first.setAmount(22.20);
+		first.setTimestamp(dateTime.getMillis());
+		Transaction second = new Transaction();
 		second.setAmount(20.22);
+		second.setTimestamp(dateTime.getMillis());
 
 		service.update(first);
 		service.update(second);
@@ -98,15 +117,40 @@ public class StatsCalculatorServiceTest {
 	public void getStatistics_whenTransactionsExist_returnsAverageAmountOfAllTransactions() {
 		StatsCalculatorService service = new StatsCalculatorService();
 
-		Transaction first = new Transaction();
-		Transaction second = new Transaction();
 
+		Transaction first = new Transaction();
 		first.setAmount(43.43);
+		first.setTimestamp(dateTime.getMillis());
+
+		Transaction second = new Transaction();
 		second.setAmount(41.41);
+		second.setTimestamp(dateTime.getMillis());
 
 		service.update(first);
 		service.update(second);
 
 		assertThat(service.getStatistics().getAvg()).isEqualTo(42.42);
 	}
+
+	@Test
+	public void getStatistics_whenTransactionsExistInLast60Seconds_returnsCorrectStats() throws InterruptedException {
+		StatsCalculatorService service = new StatsCalculatorService();
+
+		Transaction minuteOld = new Transaction();
+		Transaction current = new Transaction();
+
+		minuteOld.setAmount(41.00);
+		minuteOld.setTimestamp(dateTime.minusSeconds(59).getMillis());
+		current.setAmount(42.00);
+		current.setTimestamp(dateTime.getMillis());
+
+		service.update(minuteOld);
+		service.update(current);
+
+		sleep(1000);
+
+		assertThat(service.getStatistics().getCount()).isEqualTo(1);
+		assertThat(service.getStatistics().getSum()).isEqualTo(42);
+	}
+
 }
