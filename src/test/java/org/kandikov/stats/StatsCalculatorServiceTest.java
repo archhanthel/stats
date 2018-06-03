@@ -153,4 +153,25 @@ public class StatsCalculatorServiceTest {
 		assertThat(service.getStatistics().getSum()).isEqualTo(42);
 	}
 
+	@Test
+	public void getStatistics_whenTimeStampsAreIdentical_returnsCorrectStats() {
+		StatsCalculatorService service = new StatsCalculatorService();
+		long sameTime = dateTime.getMillis();
+
+		Transaction first = new Transaction();
+		first.setAmount(43.43);
+		first.setTimestamp(sameTime);
+
+		Transaction second = new Transaction();
+		second.setAmount(41.41);
+		second.setTimestamp(sameTime);
+
+		service.update(first);
+		service.update(second);
+
+		assertThat(service.getStatistics().getAvg()).isEqualTo(42.42);
+
+	}
+
+
 }
