@@ -77,4 +77,36 @@ public class StatsCalculatorServiceTest {
 
 		assertThat(service.getStatistics().getMin()).isEqualTo(lower.getAmount());
 	}
+
+	@Test
+	public void getStatistics_whenTransactionsExist_returnsSumOfAllAmounts() {
+		StatsCalculatorService service = new StatsCalculatorService();
+
+		Transaction first = new Transaction();
+		Transaction second = new Transaction();
+
+		first.setAmount(22.20);
+		second.setAmount(20.22);
+
+		service.update(first);
+		service.update(second);
+
+		assertThat(service.getStatistics().getSum()).isEqualTo(42.42);
+	}
+
+	@Test
+	public void getStatistics_whenTransactionsExist_returnsAverageAmountOfAllTransactions() {
+		StatsCalculatorService service = new StatsCalculatorService();
+
+		Transaction first = new Transaction();
+		Transaction second = new Transaction();
+
+		first.setAmount(43.43);
+		second.setAmount(41.41);
+
+		service.update(first);
+		service.update(second);
+
+		assertThat(service.getStatistics().getAvg()).isEqualTo(42.42);
+	}
 }

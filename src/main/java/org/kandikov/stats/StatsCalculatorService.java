@@ -11,17 +11,21 @@ public class StatsCalculatorService {
 	}
 
 	public void update(Transaction transaction) {
-		stats.setSum(transaction.getAmount());
-		stats.setAvg(transaction.getAmount());
+		double amount = transaction.getAmount();
+		stats.setSum(stats.getSum()+amount);
 
-		if (transaction.getAmount() > stats.getMax())
-			stats.setMax(transaction.getAmount());
+		if(stats.getCount()==0)
+			stats.setAvg(amount);
+		else
+			stats.setAvg(stats.getSum()/(stats.getCount()+1));
 
-		if (transaction.getAmount() < stats.getMin() || stats.getCount() == 0)
-			stats.setMin(transaction.getAmount());
+		if (amount > stats.getMax())
+			stats.setMax(amount);
+
+		if (amount < stats.getMin() || stats.getCount() == 0)
+			stats.setMin(amount);
 
 		long count = stats.getCount();
-
 		stats.setCount(++count);
 	}
 }
