@@ -12,12 +12,7 @@ public class StatsCalculatorService {
 
 	public void update(Transaction transaction) {
 		double amount = transaction.getAmount();
-		stats.setSum(stats.getSum()+amount);
-
-		if(stats.getCount()==0)
-			stats.setAvg(amount);
-		else
-			stats.setAvg(stats.getSum()/(stats.getCount()+1));
+		stats.setSum(stats.getSum() + amount);
 
 		if (amount > stats.getMax())
 			stats.setMax(amount);

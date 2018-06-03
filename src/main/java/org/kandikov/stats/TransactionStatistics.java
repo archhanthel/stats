@@ -15,12 +15,16 @@ public class TransactionStatistics {
 		this.sum = sum;
 	}
 
-	public double getAvg() {
-		return avg;
+	private double updateAvg() {
+		if (count > 0)
+			return this.sum / this.count;
+		else
+			return 0;
 	}
 
-	public void setAvg(double avg) {
-		this.avg = avg;
+	public double getAvg() {
+		this.avg = updateAvg();
+		return this.avg;
 	}
 
 	public double getMax() {
