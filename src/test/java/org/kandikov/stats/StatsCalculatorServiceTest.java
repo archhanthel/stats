@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import static java.lang.Thread.sleep;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.time.DateTimeZone.UTC;
 
 public class StatsCalculatorServiceTest {
@@ -44,7 +44,7 @@ public class StatsCalculatorServiceTest {
 		first.setTimestamp(dateTime.getMillis());
 		Transaction second = new Transaction();
 		second.setAmount(20.22);
-		second.setTimestamp(dateTime.getMillis());
+		second.setTimestamp(dateTime.minusSeconds(1).getMillis());
 
 		service.update(first);
 		service.update(second);
@@ -58,9 +58,9 @@ public class StatsCalculatorServiceTest {
 
 		Transaction lower = new Transaction();
 		lower.setAmount(21.10);
-		lower.setTimestamp(dateTime.getMillis());
+		lower.setTimestamp(dateTime.minusSeconds(1).getMillis());
 		Transaction mid = new Transaction();
-		mid.setTimestamp(dateTime.getMillis());
+		mid.setTimestamp(dateTime.minusSeconds(2).getMillis());
 		mid.setAmount(33.05);
 		Transaction higher = new Transaction();
 		higher.setTimestamp(dateTime.getMillis());
@@ -83,10 +83,10 @@ public class StatsCalculatorServiceTest {
 		lower.setTimestamp(dateTime.getMillis());
 		Transaction mid = new Transaction();
 		mid.setAmount(33.05);
-		mid.setTimestamp(dateTime.getMillis());
+		mid.setTimestamp(dateTime.minusSeconds(1).getMillis());
 		Transaction higher = new Transaction();
 		higher.setAmount(42.42);
-		higher.setTimestamp(dateTime.getMillis());
+		higher.setTimestamp(dateTime.minusSeconds(2).getMillis());
 
 
 		service.update(higher);
@@ -105,7 +105,7 @@ public class StatsCalculatorServiceTest {
 		first.setTimestamp(dateTime.getMillis());
 		Transaction second = new Transaction();
 		second.setAmount(20.22);
-		second.setTimestamp(dateTime.getMillis());
+		second.setTimestamp(dateTime.minusSeconds(1).getMillis());
 
 		service.update(first);
 		service.update(second);
@@ -124,7 +124,7 @@ public class StatsCalculatorServiceTest {
 
 		Transaction second = new Transaction();
 		second.setAmount(41.41);
-		second.setTimestamp(dateTime.getMillis());
+		second.setTimestamp(dateTime.minusSeconds(1).getMillis());
 
 		service.update(first);
 		service.update(second);

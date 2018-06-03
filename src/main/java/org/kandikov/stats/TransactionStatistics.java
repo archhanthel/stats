@@ -1,11 +1,16 @@
 package org.kandikov.stats;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class TransactionStatistics {
 	private double sum;
 	private double avg;
 	private double max;
 	private double min;
 	private long count;
+
+	@JsonIgnore
+	private long lastUpdated;
 
 	public double getSum() {
 		return sum;
@@ -50,4 +55,13 @@ public class TransactionStatistics {
 	public void setCount(long count) {
 		this.count = count;
 	}
+
+	public long getLastUpdated() {
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(long lastUpdated) {
+		this.lastUpdated = lastUpdated;
+	}
+
 }
