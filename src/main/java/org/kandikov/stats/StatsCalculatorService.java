@@ -13,8 +13,15 @@ public class StatsCalculatorService {
 	public void update(Transaction transaction) {
 		stats.setSum(transaction.getAmount());
 		stats.setAvg(transaction.getAmount());
-		stats.setMax(transaction.getAmount());
-		stats.setMin(transaction.getAmount());
-		stats.setCount(1);
+
+		if (transaction.getAmount() > stats.getMax())
+			stats.setMax(transaction.getAmount());
+
+		if (transaction.getAmount() < stats.getMin() || stats.getCount() == 0)
+			stats.setMin(transaction.getAmount());
+
+		long count = stats.getCount();
+
+		stats.setCount(++count);
 	}
 }
