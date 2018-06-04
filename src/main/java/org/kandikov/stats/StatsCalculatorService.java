@@ -19,22 +19,21 @@ public class StatsCalculatorService {
 	}
 
 	public TransactionStatistics getStatistics() {
-		TransactionStatistics stats = new TransactionStatistics();
+		TransactionStatistics statistics = new TransactionStatistics();
 
-		for (int i = 0; i < CAPACITY; i++) {
-			TransactionStatistics frame = frames.get(i);
+		frames.values()
+				.stream()
+				.filter(this::isValid)
+				.forEach(frame -> {
+					if (statistics.getMin() > frame.getMin() || statistics.getMin() == 0)
+						statistics.setMin(frame.getMin());
+					if (statistics.getMax() < frame.getMax())
+						statistics.setMax(frame.getMax());
+					statistics.setCount(statistics.getCount() + frame.getCount());
+					statistics.setSum(statistics.getSum() + frame.getSum());
+				});
 
-			if (isValid(frame)) {
-				if (stats.getMin() > frame.getMin() || stats.getMin() == 0)
-					stats.setMin(frame.getMin());
-				if (stats.getMax() < frame.getMax())
-					stats.setMax(frame.getMax());
-				stats.setCount(stats.getCount() + frame.getCount());
-				stats.setSum(stats.getSum() + frame.getSum());
-			}
-		}
-
-		return stats;
+		return statistics;
 	}
 
 	public void update(Transaction transaction) {
