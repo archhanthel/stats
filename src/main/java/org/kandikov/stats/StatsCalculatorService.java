@@ -3,13 +3,14 @@ package org.kandikov.stats;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 @Service
 public class StatsCalculatorService {
 	private static final Integer CAPACITY = 60;
-	private ConcurrentHashMap<Integer, TransactionStatistics> frames = new ConcurrentHashMap<>(CAPACITY);
+	private Map<Integer, TransactionStatistics> frames = new ConcurrentHashMap<>(CAPACITY);
 
 	StatsCalculatorService() {
 		for (int i = 0; i < CAPACITY; i++) {
@@ -21,17 +22,15 @@ public class StatsCalculatorService {
 		TransactionStatistics stats = new TransactionStatistics();
 
 		for (int i = 0; i < CAPACITY; i++) {
-			TransactionStatistics stat = frames.get(i);
-			long minuteAgo = new DateTime().minusSeconds(60).getMillis();
-			long lastUpdated = stat.getLastUpdated();
+			TransactionStatistics frame = frames.get(i);
 
-			if (lastUpdated > minuteAgo) {
-				stats.setSum(stats.getSum() + stat.getSum());
-				if (stats.getMin() > stat.getMin() || stats.getMin() == 0)
-					stats.setMin(stat.getMin());
-				if (stats.getMax() < stat.getMax())
-					stats.setMax(stat.getMax());
-				stats.setCount(stats.getCount() + stat.getCount());
+			if (isValid(frame)) {
+				if (stats.getMin() > frame.getMin() || stats.getMin() == 0)
+					stats.setMin(frame.getMin());
+				if (stats.getMax() < frame.getMax())
+					stats.setMax(frame.getMax());
+				stats.setCount(stats.getCount() + frame.getCount());
+				stats.setSum(stats.getSum() + frame.getSum());
 			}
 		}
 
@@ -57,7 +56,6 @@ public class StatsCalculatorService {
 
 	private TransactionStatistics updateFrame(Transaction transaction, TransactionStatistics stats) {
 		double amount = transaction.getAmount();
-		stats.setSum(stats.getSum() + amount);
 
 		if (amount > stats.getMax())
 			stats.setMax(amount);
@@ -65,8 +63,8 @@ public class StatsCalculatorService {
 		if (amount < stats.getMin() || stats.getCount() == 0)
 			stats.setMin(amount);
 
-		long count = stats.getCount();
-		stats.setCount(++count);
+		stats.setSum(stats.getSum() + amount);
+		stats.setCount(stats.getCount() + 1);
 		stats.setLastUpdated(transaction.getTimestamp());
 
 		return stats;
